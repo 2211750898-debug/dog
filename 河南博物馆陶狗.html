@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <!-- 响应式适配：电脑/手机通用 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>河南博物院陶狗 | 第X组</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(180deg, #5B7A5B 0%, #8DA68D 30%, #E6EFE6 70%, #F5F9F5 100%);
+            color: #333;
+            font-family: "Microsoft YaHei", "SimHei", sans-serif;
+            line-height: 1.7;
+            padding-bottom: 50px;
+        }
+        /* 青铜器色系 */
+        :root {
+            --bronze-dark: #3D5A3D;
+            --bronze-mid: #5B7A5B;
+            --bronze-light: #8DA68D;
+            --accent: #B98C6A;
+            --light-bg: rgba(255,255,255,0.9);
+        }
+
+        /* 浮动动画 */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+        .float-box {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        /* 内容容器 居中+最大宽度 兼顾电脑/手机 */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 封面Header */
+        .header {
+            background: linear-gradient(rgba(91,122,91,0.85), rgba(141,166,141,0.7)), url('陶狗.jpg');
+            background-size: cover;
+            background-position: center;
+            padding: 50px 20px;
+            text-align: center;
+            position: relative;
+            color: #fff;
+            border-radius: 0 0 12px 12px;
+        }
+        .main-title {
+            font-size: clamp(26px, 4vw, 36px);
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .sub-title {
+            font-size: clamp(16px, 2vw, 20px);
+            margin-bottom: 25px;
+            opacity: 0.95;
+        }
+        .tag {
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        .dog-img {
+            width: clamp(200px, 50%, 320px);
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            margin: 15px auto;
+            display: block;
+        }
+
+        /* 通用板块 */
+        .section {
+            padding: 35px 0;
+            border-bottom: 1px solid rgba(61,90,61,0.2);
+        }
+        .section-title {
+            font-size: clamp(18px, 2.5vw, 24px);
+            color: var(--bronze-dark);
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent);
+            padding-left: 12px;
+        }
+        .data-block {
+            background: var(--light-bg);
+            border-radius: 12px;
+            padding: 18px;
+            margin: 16px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        .analysis-text {
+            background: rgba(185,140,106,0.1);
+            border-left: 3px solid var(--accent);
+            padding: 14px 16px;
+            margin: 14px 0;
+            font-size: 14px;
+        }
+        .conclusion-card {
+            background: linear-gradient(90deg, var(--bronze-dark), var(--bronze-mid));
+            color: #fff;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 16px;
+            font-weight: 500;
+        }
+        /* 图表容器 自适应高度 */
+        .chart {
+            width: 100%;
+            height: clamp(240px, 40vh, 320px);
+            background: var(--light-bg);
+            border-radius: 12px;
+            padding: 10px;
+            margin: 16px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        /* 四宫格数据卡片 响应式布局 */
+        .four-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+        .four-grid .data-card {
+            background: var(--light-bg);
+            border-radius: 10px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+        /* 底部总结 */
+        .footer {
+            background: var(--bronze-dark);
+            color: #fff;
+            padding: 40px 20px;
+            text-align: center;
+            border-radius: 12px 12px 0 0;
+            margin-top: 20px;
+        }
+        .footer-title {
+            font-size: clamp(18px, 2.5vw, 24px);
+            margin-bottom: 20px;
+        }
+        .trends {
+            text-align: left;
+            line-height: 1.8;
+            margin: 20px 0;
+            font-size: 15px;
+        }
+        .slogan {
+            font-size: clamp(16px, 2vw, 20px);
+            font-weight: bold;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部封面 -->
+    <div class="header float-box">
+        <h1 class="main-title">河南博物院陶狗<br>网红文物传播数据全透视</h1>
+        <p class="sub-title">数据驱动 · 破圈路径 · 转化闭环 · 长效IP</p>
+        <img class="dog-img" src="陶狗.jpg" alt="河南省博物馆绿釉陶狗">
+        <div class="tag"></div>
+    </div>
+
+    <!-- 主体内容 统一容器 居中适配电脑/手机 -->
+    <div class="container">
+        <!-- 1.声量分布与时间趋势 -->
+        <div class="section">
+            <h2 class="section-title">陶狗全网声量 · 平台格局 × 时间走势</h2>
+            <div class="data-block">
+                <p><strong>核心阵地：</strong>抖音、微博（声量最高）</p>
+                <p><strong>增长平台：</strong>小红书稳步上升</p>
+                <p><strong>补充渠道：</strong>B站、微信公众号</p>
+            </div>
+            <div class="chart" id="lineChart"></div>
+            <div class="data-block">
+                <p><strong>峰值节点：</strong>节假日、文创上新、跨界活动均触发声量高峰</p>
+            </div>
+            <div class="analysis-text">
+                <strong>数据分析：</strong>2022下半年是传播拐点，短视频内容带动热度起飞；2023年全年维持高位证明IP具备长效生命力，并非短期网红热点。活动与文创运营可有效刺激流量反弹。
+            </div>
+            <div class="conclusion-card">
+                短视频驱动 + 长效运营 → 从单次爆火升级为跨年度文化IP
+            </div>
+        </div>
+
+        <!-- 2.流量转化漏斗图 -->
+        <div class="section">
+            <h2 class="section-title">流量转化全链路 · 从种草到打卡</h2>
+            <div class="chart" id="funnelChart"></div>
+            <div class="data-block">
+                <p><strong>流失卡点：</strong>互动→搜索流失19%（核心瓶颈），攻略→意向流失7%</p>
+            </div>
+            <div class="analysis-text">
+                <strong>数据分析：</strong>整体到访转化率11%，线上引流能力优秀。最大短板集中在“互动后主动搜索”环节，说明内容引导不足；攻略内容质量也小幅阻碍意向转化，是后续优化重点。
+            </div>
+            <div class="conclusion-card">
+                到访率11%→线上强拉动；优化搜索引导与攻略内容可显著提升转化
+            </div>
+        </div>
+
+        <!-- 3.核心传播成效 -->
+        <div class="section">
+            <h2 class="section-title">亿级曝光 · Z世代主场 · 破圈实证</h2>
+            <div class="four-grid">
+                <div class="data-card float-box">
+                    <p style="font-size:14px;color:var(--bronze-dark);">全网总曝光</p>
+                    <p style="font-size:20px;font-weight:bold;color:var(--accent);">38.2 亿次</p>
+                </div>
+                <div class="data-card float-box">
+                    <p style="font-size:14px;color:var(--bronze-dark);">表情包下载</p>
+                    <p style="font-size:20px;font-weight:bold;color:var(--accent);">1460 万次</p>
+                </div>
+                <div class="data-card float-box">
+                    <p style="font-size:14px;color:var(--bronze-dark);">搜索指数同比</p>
+                    <p style="font-size:20px;font-weight:bold;color:var(--accent);">+412%</p>
+                </div>
+                <div class="data-card float-box">
+                    <p style="font-size:14px;color:var(--bronze-dark);">Z世代受众占比</p>
+                    <p style="font-size:20px;font-weight:bold;color:var(--accent);">61.7%</p>
+                </div>
+            </div>
+            <div class="analysis-text">
+                <strong>数据分析：</strong>超高曝光+海量表情包传播，证明轻量化趣味内容传播效率远高于传统文博宣传；搜索指数暴涨代表用户从“被动观看”转向“主动了解”，传播深度大幅提升，Z世代成为核心受众群体。
+            </div>
+            <div class="conclusion-card">
+                轻量化载体 + Z世代偏好 → 重塑文博传播新范式
+            </div>
+        </div>
+
+        <!-- 4.年龄分层柱状图 -->
+        <div class="section">
+            <h2 class="section-title">年龄分层 · 青年绝对主力</h2>
+            <div class="chart" id="barAgeChart"></div>
+            <div class="analysis-text">
+                <strong>数据分析：</strong>18-30岁群体占比遥遥领先，是传播主力军；30岁以上人群渗透率断崖式下跌，反映文博趣味内容对中年群体吸引力不足，存在较大受众拓展空间。
+            </div>
+            <div class="conclusion-card">
+                18–30岁为核心驱动；30岁以上受众存在明显渗透优化空间
+            </div>
+        </div>
+
+        <!-- 5.平台热度条形图 -->
+        <div class="section">
+            <h2 class="section-title">平台效能排行 · 破圈渠道密码</h2>
+            <div class="chart" id="barPlatformChart"></div>
+            <div class="data-block">
+                <p><strong>平台定位：</strong></p>
+                <p>抖音：破圈主阵地 | 微博：话题制造</p>
+                <p>B站：深度内容 | 小红书：打卡种草 | 公众号：权威宣发</p>
+            </div>
+            <div class="analysis-text">
+                <strong>数据分析：</strong>短视频平台流量断层领先，社交+短视频是文博IP破圈核心渠道；各平台属性差异明显，差异化内容运营才能最大化全网热度。
+            </div>
+            <div class="conclusion-card">
+                多平台协同 + 差异化内容 → 实现全网热度最大化
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部总结 -->
+    <div class="footer container">
+        <h2 class="footer-title">核心趋势 · 大赛总结亮点</h2>
+        <div class="trends">
+            <p>1. <strong>传播形态：</strong>短视频+社交成为文博IP主流破圈方式</p>
+            <p>2. <strong>受众结构：</strong>Z世代年轻群体成为文化传播增长引擎</p>
+            <p>3. <strong>运营模式：</strong>短期热点转向IP化、长效化、可持续运营</p>
+            <p>4. <strong>商业价值：</strong>完成「内容→流量→线下到访」完整商业闭环</p>
+        </div>
+        <div class="slogan">
+            数据赋能文博传播 AIGC重构文化破圈路径
+        </div>
+    </div>
+
+<script>
+// 全局数据源
+const DataBase = {
+    lineData: {
+        xAxis: ['21.10','22.01','22.07','22.12','23.05','23.10','24.01','24.04'],
+        series: [20,25,45,70,78,82,85,83]
+    },
+    funnelData: [
+        {name:'浏览内容',value:100},
+        {name:'互动',value:72},
+        {name:'主动搜索',value:48},
+        {name:'浏览攻略',value:29},
+        {name:'产生意向',value:18},
+        {name:'实际到访',value:11}
+    ],
+    ageData: {
+        xAxis: ['18-24岁','25-30岁','31-40岁','41-50岁','50岁+'],
+        series: [78,64,33,14,6]
+    },
+    platformData: {
+        xAxis: ['抖音','微博','B站','小红书','公众号'],
+        series: [8.2,6.5,3.8,2.9,1.1]
+    }
+};
+
+// 初始化折线图
+const lineChart = echarts.init(document.getElementById('lineChart'));
+lineChart.setOption({
+    title:{text:'全网声量时间走势(2021.10-2024.04)',left:'center',textStyle:{fontSize:14}},
+    tooltip:{trigger:'axis'},
+    xAxis:{type:'category',data:DataBase.lineData.xAxis},
+    yAxis:{type:'value',name:'声量指数'},
+    series:[{
+        name:'全网声量',
+        type:'line',
+        data:DataBase.lineData.series,
+        smooth:true,
+        itemStyle:{color:'#5B7A5B'}
+    }]
+});
+
+// 初始化漏斗图
+const funnelChart = echarts.init(document.getElementById('funnelChart'));
+funnelChart.setOption({
+    title:{text:'线上→线下转化漏斗',left:'center',textStyle:{fontSize:14}},
+    tooltip:{trigger:'item',formatter:'{b}: {c}%'},
+    series:[{
+        type:'funnel',
+        left:'10%',
+        top:20,
+        bottom:20,
+        width:'80%',
+        data:DataBase.funnelData,
+        itemStyle:{color:'#5B7A5B'}
+    }]
+});
+
+// 初始化年龄柱状图
+const barAgeChart = echarts.init(document.getElementById('barAgeChart'));
+barAgeChart.setOption({
+    title:{text:'受众年龄占比(%)',left:'center',textStyle:{fontSize:14}},
+    tooltip:{trigger:'axis'},
+    xAxis:{type:'category',data:DataBase.ageData.xAxis},
+    yAxis:{type:'value'},
+    series:[{
+        type:'bar',
+        data:DataBase.ageData.series,
+        itemStyle:{color:'#5B7A5B'}
+    }]
+});
+
+// 初始化平台条形图
+const barPlatformChart = echarts.init(document.getElementById('barPlatformChart'));
+barPlatformChart.setOption({
+    title:{text:'平台总阅读量(单位：亿)',left:'center',textStyle:{fontSize:14}},
+    tooltip:{trigger:'axis'},
+    xAxis:{type:'value'},
+    yAxis:{type:'category',data:DataBase.platformData.xAxis},
+    series:[{
+        type:'bar',
+        data:DataBase.platformData.series,
+        itemStyle:{color:'#5B7A5B'}
+    }]
+});
+
+// 窗口实时自适应（电脑缩放、手机横竖屏都适配）
+window.addEventListener('resize',()=>{
+    lineChart.resize();
+    funnelChart.resize();
+    barAgeChart.resize();
+    barPlatformChart.resize();
+});
+</script>
+</body>
+</html>
